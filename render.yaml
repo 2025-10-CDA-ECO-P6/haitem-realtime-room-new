@@ -5,7 +5,7 @@ services:
       plan: free
       dockerfilePath: docker/Dockerfile.api
       dockerContext: .
-      healthCheckPath: /health
+      healthCheckPath: /api
       envVars:
           - key: PORT
             value: 3000
