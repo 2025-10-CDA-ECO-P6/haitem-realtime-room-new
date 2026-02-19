@@ -19,6 +19,5 @@ services:
       dockerfilePath: docker/Dockerfile.web
       dockerContext: .
       envVars:
-          # URL publique de l’API Render, à mettre après le 1er deploy de l’API
           - key: API_URL
             value: "CHANGE_ME_AFTER_DEPLOY"
