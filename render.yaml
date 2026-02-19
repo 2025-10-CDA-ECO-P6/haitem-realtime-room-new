@@ -1,0 +1,24 @@
+services:
+    - type: web
+      name: realtime-room-api
+      env: docker
+      dockerfilePath: docker/Dockerfile.api
+      dockerContext: .
+      healthCheckPath: /health
+      envVars:
+          - key: PORT
+            value: 3000
+          - key: CORS_ORIGIN
+            value: "*"
+
+    - type: web
+      name: realtime-room-web
+      env: docker
+      dockerfilePath: docker/Dockerfile.web
+      dockerContext: .
+      envVars:
+          - key: API_URL
+            fromService:
+                type: web
+                name: realtime-room-api
+                property: url

@@ -1,0 +1,10 @@
+{
+  "name": "realtime-room",
+  "private": true,
+  "packageManager": "pnpm@10.30.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "lint": "pnpm -r lint",
+    "build": "pnpm -r build"
+  }
+}

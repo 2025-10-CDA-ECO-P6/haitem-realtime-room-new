@@ -1,0 +1,34 @@
+FROM node:22-alpine AS build
+WORKDIR /repo
+RUN corepack enable
+
+# workspace files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY api/package.json ./api/package.json
+
+# install deps for api (dev deps needed for build)
+RUN pnpm -C /repo install --frozen-lockfile --filter ./api...
+
+# copy sources + build
+COPY api ./api
+WORKDIR /repo/api
+RUN pnpm build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+RUN corepack enable
+
+# workspace files needed to install prod deps for api
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY api/package.json ./api/package.json
+
+# install ONLY production deps for api (goes into /app/api/node_modules)
+RUN pnpm -C /app install --frozen-lockfile --prod --filter ./api...
+
+# put build output inside the api package folder
+COPY --from=build /repo/api/dist ./api/dist
+
+WORKDIR /app/api
+EXPOSE 3000
+CMD ["node", "dist/server.js"]
