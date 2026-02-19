@@ -18,7 +18,4 @@ services:
       dockerContext: .
       envVars:
           - key: API_URL
-            fromService:
-                type: web
-                name: realtime-room-api
-                property: url
+            value: "CHANGE_ME_AFTER_DEPLOY"
