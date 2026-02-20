@@ -2,7 +2,6 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# monorepo: on copie uniquement ce qu'il faut
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY web/package.json web/package.json
 
@@ -14,12 +13,11 @@ RUN pnpm --filter web build
 # ---------- runtime stage ----------
 FROM nginx:1.25-alpine
 
-# static files
 COPY --from=build /app/web/dist /usr/share/nginx/html
 
-# nginx template
+# nginx template (name expected by nginx)
 RUN mkdir -p /etc/nginx/templates
-COPY web/nginx.conf.template /etc/nginx/templates/nginx.conf.template
+COPY web/default.conf.template /etc/nginx/templates/default.conf.template
 
 # entrypoint
 COPY docker/web-entrypoint.sh /web-entrypoint.sh
