@@ -1,25 +1,29 @@
 #!/bin/sh
 set -e
 
-# 1) Valeur par défaut (docker-compose)
-: "${API_HOSTPORT:=api:3000}"
+# 1) Si Render fournit API_ORIGIN, on l'utilise tel quel (priorité)
+# Sinon, on tombe sur API_HOSTPORT et on construit une URL.
+if [ -n "${API_ORIGIN:-}" ]; then
+  echo "API_ORIGIN provided by env: $API_ORIGIN"
+else
+  : "${API_HOSTPORT:=api:3000}"
 
-# 2) Normalisation -> API_ORIGIN doit toujours avoir http:// ou https://
-case "$API_HOSTPORT" in
-  http://*|https://*)
-    API_ORIGIN="$API_HOSTPORT"
-    ;;
-  *)
-    API_ORIGIN="http://$API_HOSTPORT"
-    ;;
-esac
+  case "$API_HOSTPORT" in
+    http://*|https://*)
+      API_ORIGIN="$API_HOSTPORT"
+      ;;
+    *)
+      API_ORIGIN="http://$API_HOSTPORT"
+      ;;
+  esac
+fi
 
 export API_ORIGIN
 
-echo "Using API_HOSTPORT=$API_HOSTPORT"
+echo "Using API_HOSTPORT=${API_HOSTPORT:-<not set>}"
 echo "Using API_ORIGIN=$API_ORIGIN"
 
-# 3) Render template -> default.conf
+# 2) Générer la conf Nginx depuis le template
 envsubst '${API_ORIGIN}' \
   < /etc/nginx/templates/nginx.conf.template \
   > /etc/nginx/conf.d/default.conf
@@ -28,7 +32,7 @@ echo "----- /etc/nginx/conf.d/default.conf -----"
 cat /etc/nginx/conf.d/default.conf
 echo "------------------------------------------"
 
-# 4) Check nginx config (fail fast)
+# 3) Fail fast si conf invalide
 nginx -t
 
 exec nginx -g "daemon off;"
