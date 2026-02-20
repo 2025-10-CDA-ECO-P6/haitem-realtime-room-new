@@ -25,7 +25,7 @@ echo "Using API_ORIGIN=$API_ORIGIN"
 
 # 2) Générer la conf Nginx depuis le template
 envsubst '${API_ORIGIN}' \
-  < /etc/nginx/templates/nginx.conf.template \
+  < /etc/nginx/templates/default.conf.template \
   > /etc/nginx/conf.d/default.conf
 
 echo "----- /etc/nginx/conf.d/default.conf -----"
