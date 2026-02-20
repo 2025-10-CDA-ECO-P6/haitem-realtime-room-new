@@ -2,7 +2,6 @@ services:
     - type: web
       name: realtime-room-api
       env: docker
-      plan: free
       dockerfilePath: docker/Dockerfile.api
       dockerContext: .
       healthCheckPath: /health
@@ -15,9 +14,11 @@ services:
     - type: web
       name: realtime-room-web
       env: docker
-      plan: free
       dockerfilePath: docker/Dockerfile.web
       dockerContext: .
       envVars:
-          - key: API_URL
-            value: "CHANGE_ME_AFTER_DEPLOY"
+          - key: API_HOSTPORT
+            fromService:
+                type: web
+                name: realtime-room-api
+                property: hostport
