@@ -5,6 +5,9 @@ server {
   root /usr/share/nginx/html;
   index index.html;
 
+  # DNS resolver for external upstream (https://... domain)
+  resolver 1.1.1.1 8.8.8.8 valid=30s ipv6=off;
+
   location / {
     try_files $uri $uri/ /index.html;
   }
@@ -12,6 +15,10 @@ server {
   location /api/ {
     proxy_pass ${API_ORIGIN}/;
     proxy_http_version 1.1;
+
+    # enable SNI for HTTPS upstream
+    proxy_ssl_server_name on;
+
     proxy_set_header Host $host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -20,8 +27,14 @@ server {
   location /socket.io/ {
     proxy_pass ${API_ORIGIN}/socket.io/;
     proxy_http_version 1.1;
+
+    # WebSocket headers
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
+
+    # enable SNI for HTTPS upstream
+    proxy_ssl_server_name on;
+
     proxy_set_header Host $host;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
   }
